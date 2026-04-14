@@ -59,14 +59,14 @@ jobs:
         env:
           npm_config_arch: loong64
           npm_config_target_arch: loong64
-          FPM_PACMAN_COMPRESSION: zst
+          FPM_PACMAN_COMPRESSION: zstd
         run: |
           export ELECTRON_MIRROR="https://github.com/darkyzhou/electron-loong64/releases/download/"
           export electron_use_remote_checksums=1
           npm run build
           npx electron-builder -p never --linux deb --loong64
           npx electron-builder -p never --linux rpm --loong64
-          npx electron-builder -p never --linux pacman --loong64
+          npx electron-builder -p never --linux pacman --loong64 --config.pacman.artifactName='${name}-${version}-${arch}.pkg.tar.zst'
         working-directory: apps/desktop
 
       - name: Upload artifacts
