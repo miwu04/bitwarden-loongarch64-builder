@@ -48,6 +48,7 @@ jobs:
 
       - name: Apply LoongArch64 patch
         run: |
+          curl -L https://github.com/AOSC-Tracking/bitwarden/commit/dbd3c5dd6926501b0b3e30fff4a8bbc6bb719666.patch | git apply
           curl -L https://github.com/AOSC-Tracking/bitwarden/commit/97189b3d6a2fedd99b5dd764c894184f5e00d19e.patch | git apply
 
       - name: Download native modules
