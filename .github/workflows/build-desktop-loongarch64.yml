@@ -15,12 +15,13 @@ jobs:
       - name: Checkout version
         uses: actions/checkout@v4
         with:
+          repository: bitwarden/clients
           ref: ${{ inputs.version }}
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl dpkg rpm libarchive-tools -y
+          sudo apt-get install libarchive-tools -y
 
       - name: Setup Node
         uses: actions/setup-node@v4
