@@ -1,0 +1,77 @@
+name: Build Desktop (LoongArch64)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout version
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl dpkg rpm libarchive-tools -y
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
+
+      - name: Setup environment for LoongArch64
+        env:
+          npm_config_arch: loong64
+          npm_config_target_arch: loong64
+        run: |
+          export ELECTRON_MIRROR="https://github.com/darkyzhou/electron-loong64/releases/download/"
+          export ELECTRON_USE_REMOTE_CHECKSUMS="1"
+          npm install electron@39.2.7
+          npm remove electron electron-builder
+          npm install @loongdotjs/electron-builder@26.0.12-loong2 --save-dev
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Apply LoongArch64 patch
+        run: |
+          curl -L https://github.com/AOSC-Tracking/bitwarden/commit/fbda79d0b5e7e2669671b84f9f89ed0a0258d31a.patch | git apply
+
+      - name: Download native modules
+        run: |
+          mkdir -p apps/desktop/desktop_native/dist
+          curl -L -f https://github.com/miwu04/bitwarden-loongarch64-binaries/releases/download/${{ inputs.version }}/desktop_napi.linux-loong64-gnu.node -o apps/desktop/desktop_native/napi/desktop_napi.linux-loong64-gnu.node
+          curl -L -f https://github.com/miwu04/bitwarden-loongarch64-binaries/releases/download/${{ inputs.version }}/desktop_proxy.linux-loong64 -o apps/desktop/desktop_native/dist/desktop_proxy.linux-loong64
+          curl -L -f https://github.com/miwu04/bitwarden-loongarch64-binaries/releases/download/${{ inputs.version }}/libprocess_isolation.so -o apps/desktop/desktop_native/dist/libprocess_isolation.so
+
+      - name: Build and package
+        env:
+          npm_config_arch: loong64
+          npm_config_target_arch: loong64
+        run: |
+          export ELECTRON_MIRROR="https://github.com/darkyzhou/electron-loong64/releases/download/"
+          export ELECTRON_USE_REMOTE_CHECKSUMS="1"
+          npm run build
+          npx electron-builder -p never --linux deb --loong64
+          npx electron-builder -p never --linux rpm --loong64
+          npx electron-builder -p never --linux pacman --loong64
+        working-directory: apps/desktop
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.version }}
+          files: |
+            apps/desktop/dist/*.deb
+            apps/desktop/dist/*.rpm
+            apps/desktop/dist/*.pkg.tar.zst
