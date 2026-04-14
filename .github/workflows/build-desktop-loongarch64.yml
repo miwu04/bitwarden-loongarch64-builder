@@ -39,7 +39,7 @@ jobs:
           export electron_use_remote_checksums=1
           npm install electron@39.2.7
           npm remove electron-builder
-          npm install @loongdotjs/electron-builder@26.0.12-loong2 --save-dev
+          npm install @loongdotjs/electron-builder@26.8.2-loong1 --save-dev
 
       - name: Install npm dependencies
         run: npm install
@@ -59,6 +59,7 @@ jobs:
         env:
           npm_config_arch: loong64
           npm_config_target_arch: loong64
+          FPM_PACMAN_COMPRESSION: zst
         run: |
           export ELECTRON_MIRROR="https://github.com/darkyzhou/electron-loong64/releases/download/"
           export electron_use_remote_checksums=1
