@@ -1,12 +1,18 @@
 # Bitwarden Desktop (LoongArch64)
 
-Build Bitwarden Desktop for LoongArch64 architecture.
+[English](./README.en.md) | 简体中文
 
-## Usage
+## 简介
 
-Trigger the workflow manually via GitHub Actions with a version tag input.
+为 LoongArch64 架构构建的 Bitwarden Desktop 客户端。
 
-## Packages
+本项目依赖 [bitwarden-loongarch64-binaries](https://github.com/miwu04/bitwarden-loongarch64-binaries) 提供预编译的原生模块。
+
+## 使用方法
+
+通过 GitHub Actions 手动触发工作流，输入版本标签即可构建。
+
+## 软件包
 
 - `.deb` - Debian/Ubuntu
 - `.rpm` - Fedora/RHEL
